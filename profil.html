@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profil – Warcaby Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="page narrow">
+  <section class="profile-head">
+    <button class="avatar huge" id="avatarBtn" title="Zmień awatar"></button>
+    <div>
+      <label class="small muted" for="nick">Nick</label>
+      <div class="nick-row"><input id="nick" maxlength="20"><button class="btn small" id="saveNick">Zapisz nick</button></div>
+    </div>
+  </section>
+  <div class="avatar-picker" id="picker" hidden></div>
+
+  <section class="stats" id="stats"></section>
+
+  <section>
+    <h2>Elo w czasie</h2>
+    <canvas id="chart" height="220"></canvas>
+  </section>
+
+  <section>
+    <h2>Historia partii</h2>
+    <div id="history"></div>
+  </section>
+</main>
+<script type="module">
+import { boot, esc, toast } from './js/app.js';
+import * as store from './js/store.js';
+
+const AVATARS = ['🙂','😎','🦊','🐻','🐸','🦉','🐢','🐙','🦁','🐼','👾','🤖','🧙','🥷','🎩','🌵','🍄','⭐','🔥','🌙'];
+const profile = await boot();
+if (profile) {
+  const $ = id => document.getElementById(id);
+  $('avatarBtn').textContent = profile.avatar;
+  $('nick').value = profile.nick;
+  $('picker').innerHTML = AVATARS.map(a => `<button>${a}</button>`).join('');
+  $('avatarBtn').onclick = () => $('picker').hidden = !$('picker').hidden;
+  $('picker').onclick = async e => {
+    if (e.target.tagName !== 'BUTTON') return;
+    profile.avatar = e.target.textContent;
+    await store.saveProfile({ avatar: profile.avatar });
+    $('avatarBtn').textContent = profile.avatar;
+    $('picker').hidden = true;
+    toast('Awatar zapisany.');
+  };
+  $('saveNick').onclick = async () => {
+    const n = $('nick').value.trim();
+    if (n.length < 2) return toast('Nick musi mieć co najmniej 2 znaki.');
+    await store.saveProfile({ nick: n });
+    toast('Nick zapisany.');
+  };
+
+  const pct = profile.games ? Math.round(profile.wins / profile.games * 100) : 0;
+  $('stats').innerHTML = [
+    ['Elo', profile.elo], ['Najwyżej', profile.peak], ['Partie rankingowe', profile.games],
+    ['Wygrane', `${profile.wins} (${pct}%)`], ['Remisy', profile.draws], ['Porażki', profile.losses],
+  ].map(([k, v]) => `<div><span class="muted small">${k}</span><b>${v}</b></div>`).join('');
+
+  // Wykres Elo
+  const cv = $('chart'), hist = profile.eloHistory || [profile.elo];
+  const draw = () => {
+    const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = 220;
+    cv.width = w * dpr; cv.height = h * dpr;
+    const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+    const css = getComputedStyle(document.body);
+    const min = Math.min(...hist) - 30, max = Math.max(...hist) + 30;
+    const x = i => 36 + (w - 48) * (hist.length > 1 ? i / (hist.length - 1) : 0.5);
+    const y = v => 12 + (h - 36) * (1 - (v - min) / (max - min));
+    ctx.font = '12px Bricolage Grotesque, sans-serif';
+    ctx.fillStyle = css.getPropertyValue('--muted'); ctx.strokeStyle = css.getPropertyValue('--line');
+    for (let k = 0; k <= 3; k++) {
+      const v = Math.round(min + (max - min) * k / 3), yy = y(v);
+      ctx.beginPath(); ctx.moveTo(36, yy); ctx.lineTo(w - 12, yy); ctx.stroke();
+      ctx.fillText(v, 0, yy + 4);
+    }
+    ctx.strokeStyle = css.getPropertyValue('--brass'); ctx.lineWidth = 2.5; ctx.beginPath();
+    hist.forEach((v, i) => i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)));
+    ctx.stroke();
+    if (hist.length < 2) { ctx.fillStyle = css.getPropertyValue('--muted'); ctx.fillText('Zagraj partię rankingową, żeby zobaczyć wykres.', 50, h / 2); }
+  };
+  draw(); addEventListener('resize', draw);
+
+  const games = await store.getGames(100);
+  const label = { win: 'Wygrana', loss: 'Porażka', draw: 'Remis' };
+  $('history').innerHTML = games.length ? games.map(g => {
+    const d = g.ranked ? g.eloAfter - g.eloBefore : null;
+    return `<details class="game-row ${g.result}">
+      <summary>
+        <span class="avatar">${g.botAvatar}</span>
+        <span class="who">${esc(g.botName)} <span class="muted">(${g.botElo})</span><span class="muted small">${new Date(g.date).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' })}, ${g.ranked ? 'rankingowa' : 'towarzyska'}, ${g.color === 'white' ? 'białymi' : 'czarnymi'}</span></span>
+        <span class="res">${label[g.result]}</span>
+        <span class="delta ${d === null ? '' : d >= 0 ? 'up' : 'down'}">${d === null ? '–' : (d >= 0 ? '+' : '') + d}</span>
+      </summary>
+      <p class="muted small">${esc(g.reason)}. ${g.moves.length} półruchów.</p>
+      <p class="moves-text">${g.moves.map((m, i) => (i % 2 === 0 ? `<b>${i / 2 + 1}.</b> ` : '') + m).join(' ') || 'Brak ruchów.'}</p>
+    </details>`;
+  }).join('') : '<p class="muted">Historia jest pusta. <a href="play.html?mode=ranked">Zagraj pierwszą partię rankingową.</a></p>';
+}
+</script>
+</body>
+</html>

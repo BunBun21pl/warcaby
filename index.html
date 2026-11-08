@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warcaby Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Warcaby z przeciwnikami, którzy nie zagadują.</h1>
+      <p class="lead">Grasz z botami o różnej sile. W partii rankingowej nie wiesz, kto siedzi po drugiej stronie – system dobiera go do Twojego Elo i zdradza dopiero po ostatnim ruchu.</p>
+      <div class="actions">
+        <a class="btn primary big" href="play.html?mode=ranked">Graj rankingowo</a>
+        <a class="btn" href="#boty">Wybierz bota sam</a>
+      </div>
+    </div>
+    <div class="hero-card" id="meCard"></div>
+  </section>
+
+  <section>
+    <h2>Ostatnie partie</h2>
+    <div id="recent" class="recent"></div>
+  </section>
+
+  <section id="boty">
+    <h2>Partie towarzyskie</h2>
+    <p class="muted">Bez wpływu na ranking. Siła każdego bota zależy od głębokości liczenia wariantów, nie od sztucznej inteligencji.</p>
+    <div class="bot-grid" id="botGrid"></div>
+  </section>
+</main>
+<script type="module">
+import { boot, esc } from './js/app.js';
+import { BOTS } from './js/bots.js';
+import { STYLES } from './js/bot.js';
+import * as store from './js/store.js';
+
+const profile = await boot();
+if (profile) {
+  const total = profile.games;
+  document.getElementById('meCard').innerHTML = `
+    <span class="avatar big">${esc(profile.avatar)}</span>
+    <h3>${esc(profile.nick)}</h3>
+    <p class="elo-big">${profile.elo}</p>
+    <p class="muted small">${total < 20 ? `Kalibracja rankingu: ${total} z 20 partii` : `Najwyżej: ${profile.peak}`}</p>
+    <p class="record"><span class="w">${profile.wins} W</span><span class="d">${profile.draws} R</span><span class="l">${profile.losses} P</span></p>`;
+
+  const games = await store.getGames(5);
+  const label = { win: 'Wygrana', loss: 'Porażka', draw: 'Remis' };
+  document.getElementById('recent').innerHTML = games.length ? games.map(g => `
+    <a class="recent-row ${g.result}" href="profil.html">
+      <span class="avatar">${g.botAvatar}</span>
+      <span>${esc(g.botName)} <span class="muted">(${g.botElo})</span></span>
+      <span>${label[g.result]}</span>
+      <span class="muted">${g.ranked ? (g.eloAfter - g.eloBefore >= 0 ? '+' : '') + (g.eloAfter - g.eloBefore) : 'towarzyska'}</span>
+    </a>`).join('') : '<p class="muted">Nie masz jeszcze żadnej partii. Zacznij od rankingowej – pierwsze 20 partii ustawi Twój poziom.</p>';
+
+  document.getElementById('botGrid').innerHTML = BOTS.map(b => `
+    <article class="bot-card">
+      <span class="avatar">${b.avatar}</span>
+      <div class="bot-info">
+        <h3>${esc(b.name)}</h3>
+        <p class="muted small">Elo ${b.elo}, ${STYLES[b.style].label.toLowerCase()}</p>
+        <p class="small">${esc(b.bio)}</p>
+      </div>
+      <div class="bot-actions">
+        <a class="btn small" href="play.html?mode=casual&bot=${b.id}">Graj</a>
+        <a class="btn small ghost" href="play.html?mode=casual&bot=${b.id}&color=white" title="Graj białymi">Białe</a>
+        <a class="btn small ghost" href="play.html?mode=casual&bot=${b.id}&color=black" title="Graj czarnymi">Czarne</a>
+      </div>
+    </article>`).join('');
+}
+</script>
+</body>
+</html>

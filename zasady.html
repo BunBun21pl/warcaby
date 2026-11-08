@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zasady – Warcaby Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="page narrow prose">
+  <h1>Zasady gry</h1>
+  <p>Gramy w warcaby klasyczne na planszy 8×8, według zasad stosowanych w Polsce.</p>
+  <h2>Ruchy</h2>
+  <p>Zaczynają białe. Pion porusza się o jedno pole po skosie do przodu. Damka porusza się po przekątnej na dowolną odległość.</p>
+  <h2>Bicie</h2>
+  <p>Bicie jest obowiązkowe. Jeśli możesz bić na kilka sposobów, musisz wybrać ten, który zbija najwięcej pionów przeciwnika. Piony biją zarówno do przodu, jak i do tyłu. Damka bije z dowolnej odległości i może stanąć na dowolnym wolnym polu za zbitym pionem. Zbite piony znikają dopiero po zakończeniu całego ruchu i nie można przeskoczyć tego samego piona dwa razy.</p>
+  <h2>Damka</h2>
+  <p>Pion, który zakończy ruch na ostatniej linii, zamienia się w damkę. Jeśli tylko przechodzi przez ostatnią linię w trakcie bicia i bije dalej, pozostaje pionem.</p>
+  <h2>Koniec partii</h2>
+  <p>Przegrywa gracz, który nie ma pionów lub nie może wykonać ruchu. Remis następuje przy trzykrotnym powtórzeniu pozycji, po 15 ruchach każdej strony samymi damkami bez bicia, za porozumieniem albo po 150 ruchach.</p>
+  <h2>Ranking Elo</h2>
+  <p>Każdy zaczyna z 800 punktami. Przez pierwsze 20 partii ranking zmienia się szybko, żeby znaleźć Twój poziom, potem coraz wolniej. W partii rankingowej przeciwnik jest dobierany w okolicach Twojego Elo, a jego tożsamość poznajesz dopiero po zakończeniu. Kolor pionów jest losowany.</p>
+  <h2>Jak myślą boty</h2>
+  <p>Boty nie używają sztucznej inteligencji. Każdy liczy warianty klasycznym algorytmem minimax z odcięciem alfa-beta i ocenia pozycję prostymi regułami: materiał, damki, postęp pionów, środek planszy, obrona tylnej linii. Słabsze boty liczą płycej, częściej źle oceniają pozycję i czasem robią przypadkowy ruch.</p>
+</main>
+<script type="module">
+import { boot } from './js/app.js';
+boot({ requireAuth: false });
+</script>
+</body>
+</html>

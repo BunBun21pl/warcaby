@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logowanie – Warcaby Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="page login">
+  <div class="login-card">
+    <span class="brand-disc large"></span>
+    <h1>Warcaby Arena</h1>
+    <div id="localNote" hidden>
+      <p>Firebase nie jest jeszcze skonfigurowany, więc strona działa w trybie lokalnym: postępy zapisują się tylko w tej przeglądarce.</p>
+      <a class="btn primary" href="index.html">Wejdź do gry</a>
+    </div>
+    <div id="fbForms" hidden>
+      <div class="tabs">
+        <button class="tab" aria-selected="true" data-t="login">Logowanie</button>
+        <button class="tab" data-t="register">Rejestracja</button>
+      </div>
+      <form id="form">
+        <label class="reg-only" hidden>Nick<input id="nick" maxlength="20" autocomplete="nickname"></label>
+        <label>E-mail<input id="email" type="email" required autocomplete="email"></label>
+        <label>Hasło<input id="pass" type="password" minlength="6" required autocomplete="current-password"></label>
+        <p class="error" id="err" role="alert"></p>
+        <button class="btn primary" id="submit">Zaloguj się</button>
+      </form>
+      <button class="btn ghost" id="guestBtn">Graj jako gość</button>
+      <p class="muted small">Konto gościa działa tylko na tym urządzeniu.</p>
+    </div>
+  </div>
+</main>
+<script type="module">
+import * as store from './js/store.js';
+const $ = id => document.getElementById(id);
+if (!store.USE_FIREBASE) $('localNote').hidden = false;
+else {
+  const u = await store.init();
+  if (u) location.href = 'index.html';
+  $('fbForms').hidden = false;
+  let tab = 'login';
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    tab = t.dataset.t;
+    document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+    document.querySelector('.reg-only').hidden = tab !== 'register';
+    $('submit').textContent = tab === 'login' ? 'Zaloguj się' : 'Załóż konto';
+  });
+  const errors = {
+    'auth/invalid-credential': 'Nieprawidłowy e-mail lub hasło.',
+    'auth/email-already-in-use': 'Ten e-mail jest już zajęty.',
+    'auth/weak-password': 'Hasło musi mieć co najmniej 6 znaków.',
+    'auth/invalid-email': 'Nieprawidłowy adres e-mail.',
+    'auth/operation-not-allowed': 'Ta metoda logowania jest wyłączona w Firebase Console.',
+  };
+  const run = async fn => {
+    $('err').textContent = '';
+    try { await fn(); location.href = 'index.html'; }
+    catch (e) { $('err').textContent = errors[e.code] || e.message; }
+  };
+  $('form').onsubmit = e => {
+    e.preventDefault();
+    const email = $('email').value, pass = $('pass').value, nick = $('nick').value.trim() || 'Gracz';
+    run(() => tab === 'login' ? store.login(email, pass) : store.register(email, pass, nick));
+  };
+  $('guestBtn').onclick = () => run(() => store.guest());
+}
+</script>
+</body>
+</html>

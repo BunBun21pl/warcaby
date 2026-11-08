@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ranking – Warcaby Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="page narrow">
+  <h1>Ranking</h1>
+  <div class="tabs" role="tablist">
+    <button class="tab" aria-selected="true" data-f="all">Wszyscy</button>
+    <button class="tab" data-f="bots">Boty</button>
+    <button class="tab" data-f="people">Gracze</button>
+  </div>
+  <ol class="ranking" id="list"></ol>
+</main>
+<script type="module">
+import { boot, esc } from './js/app.js';
+import { BOTS } from './js/bots.js';
+import * as store from './js/store.js';
+
+const profile = await boot();
+if (profile) {
+  const me = store.user().uid;
+  const people = (await store.getTopPlayers(50)).filter(p => p.games > 0 || p.uid === me)
+    .map(p => ({ name: p.nick, avatar: p.avatar, elo: p.elo, kind: 'people', me: p.uid === me, sub: `${p.games} partii` }));
+  const bots = BOTS.map(b => ({ name: b.name, avatar: b.avatar, elo: b.elo, kind: 'bots', sub: 'bot' }));
+  const all = [...people, ...bots].sort((a, b) => b.elo - a.elo);
+  const draw = f => {
+    const rows = all.filter(r => f === 'all' || r.kind === f);
+    document.getElementById('list').innerHTML = rows.map((r, i) => `
+      <li class="${r.me ? 'me' : ''}">
+        <span class="pos">${i + 1}</span><span class="avatar">${esc(r.avatar)}</span>
+        <span class="who">${esc(r.name)}<span class="muted small">${r.me ? 'to Ty' : r.sub}</span></span>
+        <b>${r.elo}</b>
+      </li>`).join('');
+    document.querySelector('.me')?.scrollIntoView({ block: 'center' });
+  };
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+    draw(t.dataset.f);
+  });
+  draw('all');
+}
+</script>
+</body>
+</html>

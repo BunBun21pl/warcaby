@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partia – Warcaby Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="play-layout">
+  <section class="board-col">
+    <div class="player-bar">
+      <span class="avatar" id="oppAvatar">?</span>
+      <div><strong id="oppName">…</strong><span class="muted small" id="oppElo"></span></div>
+      <span class="mini-disc" id="oppDisc"></span>
+    </div>
+    <div class="board-wrap">
+      <div id="board" class="board" aria-label="Plansza do warcabów"></div>
+      <div id="searching" class="searching" hidden>
+        <div class="spinner"></div>
+        <p>Dobieram przeciwnika do Twojego poziomu…</p>
+      </div>
+    </div>
+    <div class="player-bar">
+      <span class="avatar" id="meAvatar"></span>
+      <div><strong id="meName"></strong><span class="muted small" id="meElo"></span></div>
+      <span class="mini-disc" id="meDisc"></span>
+    </div>
+  </section>
+  <aside class="side-panel">
+    <p class="mode" id="modeLabel"></p>
+    <p class="status" id="status" aria-live="polite">Ładowanie…</p>
+    <ol class="move-list" id="moveList"></ol>
+    <div class="actions">
+      <button class="btn" id="drawBtn">Zaproponuj remis</button>
+      <button class="btn danger" id="resignBtn">Poddaj się</button>
+    </div>
+    <p class="muted small">Zamknięcie strony w trakcie partii rankingowej liczy się jako porażka.</p>
+  </aside>
+</main>
+<dialog id="resultDlg" class="dialog"><div id="resultBox"></div></dialog>
+<script type="module" src="js/play.js"></script>
+</body>
+</html>
