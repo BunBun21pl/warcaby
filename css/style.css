@@ -278,3 +278,8 @@ canvas { width: 100%; background: var(--panel); border-radius: 10px; display: bl
   .recent-row > :last-child { display: none; }
   .bot-actions .ghost { display: none; }
 }
+
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.section-head h2 { margin-bottom: .3rem; }
+.install-btn { gap: .4rem; }
+.login-card .install-btn { margin-top: 1rem; }

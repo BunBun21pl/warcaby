@@ -1,0 +1,22 @@
+{
+  "name": "Warcaby Arena",
+  "short_name": "Warcaby",
+  "description": "Warcaby z botami i rankingiem Elo.",
+  "lang": "pl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#241812",
+  "theme_color": "#241812",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Partia rankingowa", "url": "./play.html?mode=ranked", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Profil", "url": "./profil.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

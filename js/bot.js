@@ -54,7 +54,7 @@ function gauss(rnd) {
 
 export function chooseMove(board, side, elo, styleName = 'balanced', rnd = Math.random) {
   const P = botParams(elo);
-  const st = STYLES[styleName] || STYLES.balanced;
+  const st = typeof styleName === 'object' && styleName ? { ...STYLES.balanced, ...styleName } : STYLES[styleName] || STYLES.balanced;
   const moves = generateMoves(board, side);
   if (moves.length <= 1) return moves[0] || null;
   if (rnd() < P.blunder) return moves[Math.floor(rnd() * moves.length)];

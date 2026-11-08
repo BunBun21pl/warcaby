@@ -2,6 +2,7 @@
 import * as store from './store.js';
 import { newRating } from './elo.js';
 import { botById } from './bots.js';
+import { installButton } from './pwa.js';
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -21,6 +22,7 @@ function renderNav() {
     <nav>${LINKS.map(([h, t]) => `<a href="${h}"${h === here ? ' aria-current="page"' : ''}>${t}</a>`).join('')}</nav>
     <div class="nav-user" id="navUser"></div>`;
   document.body.prepend(nav);
+  installButton(nav.querySelector('.nav-user'), toast);
 }
 
 export function toast(msg) {
@@ -76,7 +78,7 @@ export async function boot({ requireAuth = true } = {}) {
   const profile = await store.getProfile();
   await settleAbandoned(profile);
   const nu = document.getElementById('navUser');
-  nu.innerHTML = `<a href="profil.html" class="nav-chip"><span>${esc(profile.avatar)}</span>${esc(profile.nick)}<b>${profile.elo}</b></a>`;
+  nu.insertAdjacentHTML('beforeend', `<a href="profil.html" class="nav-chip"><span>${esc(profile.avatar)}</span>${esc(profile.nick)}<b>${profile.elo}</b></a>`);
   if (store.USE_FIREBASE) {
     const b = document.createElement('button');
     b.className = 'linkish'; b.textContent = 'Wyloguj';

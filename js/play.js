@@ -46,7 +46,7 @@ function setupWorker() {
   catch { worker = null; }
 }
 function askBot() {
-  const data = { board: game.board, side: -me, elo: bot.elo, style: bot.style };
+  const data = { board: game.board, side: -me, elo: bot.elo, style: bot.weights || bot.style };
   if (!worker) return new Promise(r => setTimeout(() => r(chooseMove(data.board, data.side, data.elo, data.style)), 30));
   return new Promise(r => {
     worker.onmessage = e => r(e.data);
@@ -196,7 +196,7 @@ $('drawBtn').onclick = () => {
   if (n < 20) return toast('Remis można zaproponować po 10 ruchach każdej strony.');
   if (n - lastDrawOffer < 10) return toast('Przeciwnik niedawno odrzucił remis. Spróbuj za kilka ruchów.');
   lastDrawOffer = n;
-  const evalForBot = -me * evaluate(game.board, STYLES[bot.style]);
+  const evalForBot = -me * evaluate(game.board, bot.weights ? { ...STYLES.balanced, ...bot.weights } : STYLES[bot.style]);
   if (evalForBot <= 25) finish(0, 'Remis za porozumieniem');
   else toast('Przeciwnik odrzucił propozycję remisu.');
 };
@@ -239,7 +239,7 @@ async function finish(winner, reason) {
     <div class="reveal">
       <span class="avatar big">${bot.avatar}</span>
       <div><p class="muted small">${mode === 'ranked' ? 'Twoim przeciwnikiem był' : 'Grałeś z'}</p>
-      <h3>${esc(bot.name)}</h3><p>Elo ${bot.elo}, styl: ${STYLES[bot.style].label.toLowerCase()}</p>
+      <h3>${esc(bot.name)}</h3><p>${bot.random ? 'Gość klubu, e' : 'E'}lo ${bot.elo}, styl: ${STYLES[bot.style].label.toLowerCase()}</p>
       <p class="muted small">${esc(bot.bio)}</p></div>
     </div>
     <div class="actions">

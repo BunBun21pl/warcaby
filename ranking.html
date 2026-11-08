@@ -7,6 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#241812">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Warcaby">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -22,6 +31,7 @@
 <script type="module">
 import { boot, esc } from './js/app.js';
 import { BOTS } from './js/bots.js';
+import { clubGuests } from './js/random-bots.js';
 import * as store from './js/store.js';
 
 const profile = await boot();
@@ -29,7 +39,10 @@ if (profile) {
   const me = store.user().uid;
   const people = (await store.getTopPlayers(50)).filter(p => p.games > 0 || p.uid === me)
     .map(p => ({ name: p.nick, avatar: p.avatar, elo: p.elo, kind: 'people', me: p.uid === me, sub: `${p.games} partii` }));
-  const bots = BOTS.map(b => ({ name: b.name, avatar: b.avatar, elo: b.elo, kind: 'bots', sub: 'bot' }));
+  const bots = [
+    ...BOTS.map(b => ({ name: b.name, avatar: b.avatar, elo: b.elo, kind: 'bots', sub: 'stały bywalec' })),
+    ...clubGuests(9, +(sessionStorage.getItem('wa_salt') || 0)).map(b => ({ name: b.name, avatar: b.avatar, elo: b.elo, kind: 'bots', sub: 'gość klubu' })),
+  ];
   const all = [...people, ...bots].sort((a, b) => b.elo - a.elo);
   const draw = f => {
     const rows = all.filter(r => f === 'all' || r.kind === f);

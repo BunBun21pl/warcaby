@@ -7,6 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#241812">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Warcaby">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,6 +34,9 @@
   <p>Każdy zaczyna z 800 punktami. Przez pierwsze 20 partii ranking zmienia się szybko, żeby znaleźć Twój poziom, potem coraz wolniej. W partii rankingowej przeciwnik jest dobierany w okolicach Twojego Elo, a jego tożsamość poznajesz dopiero po zakończeniu. Kolor pionów jest losowany.</p>
   <h2>Jak myślą boty</h2>
   <p>Boty nie używają sztucznej inteligencji. Każdy liczy warianty klasycznym algorytmem minimax z odcięciem alfa-beta i ocenia pozycję prostymi regułami: materiał, damki, postęp pionów, środek planszy, obrona tylnej linii. Słabsze boty liczą płycej, częściej źle oceniają pozycję i czasem robią przypadkowy ruch.</p>
+  <p>Poza 20 stałymi bywalcami do klubu przychodzą losowi goście. Każdy ma wylosowaną nazwę, siłę i własne upodobania: jeden bardziej ceni damki, inny pilnuje tylnej linii albo pcha piony do przodu. W partii rankingowej częściej trafisz na gościa, bo jego Elo jest losowane dokładnie wokół Twojego poziomu.</p>
+  <h2>Aplikacja</h2>
+  <p>Stronę możesz zainstalować jak aplikację: przyciskiem „Zainstaluj aplikację” w górnym pasku albo z menu przeglądarki. Na iPhonie w Safari wybierz „Udostępnij”, a potem „Do ekranu początkowego”. Bez Firebase aplikacja działa także offline.</p>
 </main>
 <script type="module">
 import { boot } from './js/app.js';

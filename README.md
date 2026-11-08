@@ -11,6 +11,22 @@ liczą warianty klasycznym algorytmem minimax z alfa-beta i ręcznie napisaną o
 - `zasady.html` – zasady gry i opis działania botów
 - `login.html` – logowanie, rejestracja, gra jako gość
 
+## Boty
+- 20 stałych bywalców (`js/bots.js`) o Elo od 400 do 2300
+- losowi goście (`js/random-bots.js`): losowa nazwa, awatar, Elo, styl i wagi oceny pozycji.
+  Bot powstaje z ziarna, więc jego id (np. `r1a2b3c-tv`) zawsze odtwarza tego samego bota
+  (historia, rewanż, rozliczenie porzuconej partii). Lista gości w lobby zmienia się co godzinę.
+- w partii rankingowej 60% przeciwników to losowi goście z Elo wylosowanym wokół Twojego
+  (`RANDOM_SHARE` w `js/bots.js`), reszta to stali bywalcy
+
+## Aplikacja (PWA)
+- `manifest.webmanifest`, `sw.js` i ikony w `icons/` pozwalają zainstalować stronę jak aplikację
+- przycisk „Zainstaluj aplikację” pojawia się w pasku, gdy przeglądarka na to pozwala (Chrome, Edge,
+  Android); na iPhonie: Safari → Udostępnij → Do ekranu początkowego
+- instalacja wymaga HTTPS, a GitHub Pages to zapewnia
+- **po każdej zmianie plików podbij `VERSION` w `sw.js`** (np. `wa-v3`), inaczej przeglądarka może
+  pokazywać starą wersję z pamięci podręcznej; nowe pliki JS dopisz też do listy `SHELL`
+
 ## Ranking
 - start: 800 Elo, pierwsze 20 partii to kalibracja (K=40), potem K=24, od 60 partii K=16
 - w partii rankingowej przeciwnik jest losowany w okolicach Twojego Elo (±~100) i ukryty do końca partii

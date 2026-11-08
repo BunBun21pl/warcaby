@@ -7,6 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#241812">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Warcaby">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,7 +26,7 @@
       <p class="lead">Grasz z botami o różnej sile. W partii rankingowej nie wiesz, kto siedzi po drugiej stronie – system dobiera go do Twojego Elo i zdradza dopiero po ostatnim ruchu.</p>
       <div class="actions">
         <a class="btn primary big" href="play.html?mode=ranked">Graj rankingowo</a>
-        <a class="btn" href="#boty">Wybierz bota sam</a>
+        <a class="btn" href="#goscie">Wybierz przeciwnika sam</a>
       </div>
     </div>
     <div class="hero-card" id="meCard"></div>
@@ -28,8 +37,17 @@
     <div id="recent" class="recent"></div>
   </section>
 
+  <section id="goscie">
+    <div class="section-head">
+      <h2>Goście klubu</h2>
+      <button class="btn small ghost" id="reroll">Wylosuj innych gości</button>
+    </div>
+    <p class="muted">Przypadkowi gracze o przypadkowej sile. Co godzinę przychodzą nowi. Partie wybrane tutaj są towarzyskie, ale tacy goście trafiają się też w partiach rankingowych.</p>
+    <div class="bot-grid" id="guestGrid"></div>
+  </section>
+
   <section id="boty">
-    <h2>Partie towarzyskie</h2>
+    <h2>Stali bywalcy</h2>
     <p class="muted">Bez wpływu na ranking. Siła każdego bota zależy od głębokości liczenia wariantów, nie od sztucznej inteligencji.</p>
     <div class="bot-grid" id="botGrid"></div>
   </section>
@@ -37,6 +55,7 @@
 <script type="module">
 import { boot, esc } from './js/app.js';
 import { BOTS } from './js/bots.js';
+import { clubGuests } from './js/random-bots.js';
 import { STYLES } from './js/bot.js';
 import * as store from './js/store.js';
 
@@ -60,7 +79,7 @@ if (profile) {
       <span class="muted">${g.ranked ? (g.eloAfter - g.eloBefore >= 0 ? '+' : '') + (g.eloAfter - g.eloBefore) : 'towarzyska'}</span>
     </a>`).join('') : '<p class="muted">Nie masz jeszcze żadnej partii. Zacznij od rankingowej – pierwsze 20 partii ustawi Twój poziom.</p>';
 
-  document.getElementById('botGrid').innerHTML = BOTS.map(b => `
+  const card = b => `
     <article class="bot-card">
       <span class="avatar">${b.avatar}</span>
       <div class="bot-info">
@@ -73,7 +92,16 @@ if (profile) {
         <a class="btn small ghost" href="play.html?mode=casual&bot=${b.id}&color=white" title="Graj białymi">Białe</a>
         <a class="btn small ghost" href="play.html?mode=casual&bot=${b.id}&color=black" title="Graj czarnymi">Czarne</a>
       </div>
-    </article>`).join('');
+    </article>`;
+  document.getElementById('botGrid').innerHTML = BOTS.map(card).join('');
+  let salt = +(sessionStorage.getItem('wa_salt') || 0);
+  const drawGuests = () => document.getElementById('guestGrid').innerHTML = clubGuests(9, salt).map(card).join('');
+  drawGuests();
+  document.getElementById('reroll').onclick = () => {
+    salt++;
+    sessionStorage.setItem('wa_salt', salt);
+    drawGuests();
+  };
 }
 </script>
 </body>

@@ -1,4 +1,6 @@
-// Lista botów. Każdy ma stałe Elo i styl gry (wpływa na funkcję oceny).
+import { makeRandomBot, randomBotFromId, newSeed } from './random-bots.js';
+
+// Lista stałych botów (bywalców klubu). Każdy ma stałe Elo i styl gry (wpływa na funkcję oceny).
 export const BOTS = [
   { id: 'piotrus',   name: 'Piotruś',            avatar: '🧒', elo: 400,  style: 'aggressive', bio: 'Ma 7 lat i właśnie nauczył się, że pionem można bić do tyłu.' },
   { id: 'halina',    name: 'Babcia Halina',      avatar: '👵', elo: 500,  style: 'defensive',  bio: 'Gra w przerwach między serialami. Zawsze częstuje pierniczkami.' },
@@ -22,12 +24,17 @@ export const BOTS = [
   { id: 'maszyna',   name: 'Maszyna parowa 1899', avatar: '⚙️', elo: 2300, style: 'positional', bio: 'Najsilniejszy z botów. Mechaniczny, cierpliwy, bezlitosny.' },
 ];
 
-export const botById = id => BOTS.find(b => b.id === id);
+export const botById = id => BOTS.find(b => b.id === id) || randomBotFromId(id);
 
 // Ukryte dobieranie przeciwnika: cel = Twoje Elo ± losowe odchylenie,
 // a potem losowanie bota ważone bliskością do celu. Nie wiesz, kogo dostaniesz.
+// Część partii gra się z jednym z 20 stałych botów, część z losowym gościem,
+// którego Elo jest wylosowane blisko Twojego poziomu.
+export const RANDOM_SHARE = 0.6;
+
 export function pickRankedOpponent(playerElo) {
   const target = playerElo + Math.round((Math.random() + Math.random() - 1) * 80);
+  if (Math.random() < RANDOM_SHARE) return makeRandomBot(newSeed(), target);
   const weights = BOTS.map(b => Math.exp(-((b.elo - target) ** 2) / (2 * 90 * 90)));
   const sum = weights.reduce((a, b) => a + b, 0);
   if (sum < 1e-9) return BOTS.reduce((a, b) => (Math.abs(b.elo - target) < Math.abs(a.elo - target) ? b : a));
